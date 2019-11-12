@@ -8,7 +8,7 @@ function _getLatestDumpSql() {
 
 function _importDataDump() {
     printf 'Importing dump into "%s"\n' "$POSTGRES_HOST" >&2
-    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USERNAME" "$POSTGRES_DATABASE" <(_getLatestDumpSql)
+    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USERNAME" "$POSTGRES_DATABASE" -f <(_getLatestDumpSql)
 }
 
 function _syncS3Bucket() {
