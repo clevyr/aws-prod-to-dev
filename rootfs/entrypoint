@@ -1,0 +1,26 @@
+#!/bin/bash
+
+IFS=$'\n\t'
+set -euo pipefail
+
+if [[ -n "${BACKUP_BUCKET:-}" && -n "${POSTGRES_HOST:-}" && -n "${POSTGRES_USERNAME:-}" && -n "${POSTGRES_DATABASE:-}" && -n "${POSTGRES_PASSWORD:-}" ]]; then
+    LATEST_DUMP="$(aws s3 ls "s3://$BACKUP_BUCKET/" | sort | tail -n 1 | awk '{print $4}')"
+    printf 'Latest database backup is "%s"\n' "$LATEST_DUMP"
+
+    aws s3 cp --no-progress "s3://$BACKUP_BUCKET/$LATEST_DUMP" .
+
+    if [[ "$LATEST_DUMP" = *.gz ]]; then
+        echo 'Unpacking dump'
+        gunzip "$LATEST_DUMP"
+        LATEST_DUMP="${LATEST_DUMP%.gz}"
+    fi
+
+    if [[ "$LATEST_DUMP" = *.sql ]]; then
+        PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USERNAME" "$POSTGRES_DATABASE" < "$LATEST_DUMP"
+    fi
+fi
+
+if [[ -n "${FROM_BUCKET:-}" && -n "${TO_BUCKET:-}" ]]; then
+    printf 'Syncing S3 bucket "s3://%s/" to "s3://%s/"\n' "$FROM_BUCKET" "$TO_BUCKET"
+    aws s3 sync --no-progress ${DELETE:+--delete} "s3://$FROM_BUCKET/" "s3://$TO_BUCKET/"
+fi
