@@ -23,14 +23,16 @@ function _main() {
     if [[ -n "${BACKUP_BUCKET:-}" && -n "${POSTGRES_HOST:-}" && -n "${POSTGRES_USERNAME:-}" && -n "${POSTGRES_DATABASE:-}" && -n "${POSTGRES_PASSWORD:-}" ]]; then
         _importDataDump
     else
-        printf 'Not all variables are set for database import.\n'
+        echo 'Not all variables are set for database import.' >&2
     fi
 
     if [[ -n "${FROM_BUCKET:-}" && -n "${TO_BUCKET:-}" ]]; then
         _syncS3Bucket
     else
-        printf 'Not all variables are set for S3 sync.\n'
+        echo 'Not all variables are set for S3 sync.' >&2
     fi
+
+    echo 'Done!' >&2
 }
 
 if [[ "$0" = "${BASH_SOURCE[0]}" ]]; then
