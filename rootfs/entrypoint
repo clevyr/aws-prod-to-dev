@@ -6,9 +6,19 @@ function _getLatestDumpSql() {
     aws s3 cp --no-progress "s3://$BACKUP_BUCKET/$LATEST_DUMP.gz" - | gunzip
 }
 
+_psqlExec() {
+    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USERNAME" "$POSTGRES_DATABASE" "$@"
+}
+
 function _importDataDump() {
     printf 'Importing dump into "%s"\n' "$POSTGRES_HOST" >&2
-    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USERNAME" "$POSTGRES_DATABASE" -f <(_getLatestDumpSql)
+
+    if [[ -n "${SCHEMA_TO_DROP:-}" ]]; then
+        printf 'Dropping schema "%s"\n' "$SCHEMA_TO_DROP"
+        _psqlExec <<< "DROP SCHEMA $SCHEMA_TO_DROP CASCADE; CREATE SCHEMA $SCHEMA_TO_DROP; GRANT ALL ON SCHEMA $SCHEMA_TO_DROP TO $SCHEMA_TO_DROP;"
+    fi
+
+    _psqlExec -f <(_getLatestDumpSql)
 }
 
 function _syncS3Bucket() {

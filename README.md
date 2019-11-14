@@ -15,6 +15,7 @@ This is a script that can import a database dump and sync S3 buckets to match a 
 | POSTGRES_USERNAME | The Postgres username to authenticate with.          | `username`         |
 | POSTGRES_PASSWORD | The Postgres password to authenticate with.          | `password`         |
 | POSTGRES_DATABASE | The Postgres database to import into.                | `laravel`          |
+| SCHEMA_TO_DROP    | The schema to drop before running the import.        | `public`           |
 
 ### S3 Bucket Sync
 
