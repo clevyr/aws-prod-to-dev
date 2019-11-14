@@ -27,7 +27,7 @@ function _syncS3Bucket() {
 }
 
 function _createDownJson() {
-    jq -n --arg time "$(date +%s)" '{"time": $time | tonumber, "message": "Updating to match production. Please retry in 1 minute."}'
+    jq -n --arg time "$(date +%s)" '{"time": $time | tonumber, "message": "Updating to match production. Please retry in 1 minute.", "retry": null, "allowed": []}'
 }
 
 function _main() {
