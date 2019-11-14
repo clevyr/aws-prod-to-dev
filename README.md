@@ -23,3 +23,10 @@ This is a script that can import a database dump and sync S3 buckets to match a 
 | FROM_BUCKET | The bucket to sync from.                                    | `prod-files` |
 | TO_BUCKET   | The bucket to sync to.                                      | `dev-files`  |
 | DELETE      | Delete files in the destination that are not in the source. | `true`       |
+
+### Laravel-Specific
+
+| Variable       | Details                                   | Example                           |
+|----------------|-------------------------------------------|-----------------------------------|
+| DOWN_FILE      | The path of the `down` file to create.    | `/app/storage/app/framework/down` |
+| MIGRATE_FILE   | The path of the `migrate` file to create. | `/app/storage/app/migrate`        |

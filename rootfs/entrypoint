@@ -16,9 +16,17 @@ function _syncS3Bucket() {
     aws s3 sync --no-progress ${DELETE:+--delete} "s3://$FROM_BUCKET/" "s3://$TO_BUCKET/"
 }
 
+function _createDownJson() {
+    jq -n --arg time "$(date +%s)" '{"time": $time | tonumber, "message": "Updating to match production. Please retry in 1 minute."}'
+}
+
 function _main() {
     IFS=$'\n\t'
     set -euo pipefail
+
+    if [[ -n "${DOWN_FILE:-}" ]]; then
+        _createDownJson > "$DOWN_FILE"
+    fi
 
     if [[ -n "${BACKUP_BUCKET:-}" && -n "${POSTGRES_HOST:-}" && -n "${POSTGRES_USERNAME:-}" && -n "${POSTGRES_DATABASE:-}" && -n "${POSTGRES_PASSWORD:-}" ]]; then
         _importDataDump
@@ -30,6 +38,10 @@ function _main() {
         _syncS3Bucket
     else
         echo 'Not all variables are set for S3 sync.' >&2
+    fi
+
+    if [[ -n "${MIGRATE_FILE:-}" ]]; then
+        touch "$MIGRATE_FILE"
     fi
 
     echo 'Done!' >&2
