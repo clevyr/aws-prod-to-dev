@@ -34,8 +34,11 @@ function _main() {
     IFS=$'\n\t'
     set -euo pipefail
 
+    : "${WWW_USER:=82}"
+
     if [[ -n "${DOWN_FILE:-}" ]]; then
         _createDownJson > "$DOWN_FILE"
+        chown "$WWW_USER:$WWW_USER" "$DOWN_FILE"
     fi
 
     if [[ -n "${BACKUP_BUCKET:-}" && -n "${POSTGRES_HOST:-}" && -n "${POSTGRES_USERNAME:-}" && -n "${POSTGRES_DATABASE:-}" && -n "${POSTGRES_PASSWORD:-}" ]]; then
@@ -52,6 +55,7 @@ function _main() {
 
     if [[ -n "${MIGRATE_FILE:-}" ]]; then
         touch "$MIGRATE_FILE"
+        chown "$WWW_USER:$WWW_USER" "$MIGRATE_FILE"
     fi
 
     echo 'Done!' >&2
